@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PRIDONA Defence Systems Pvt. Ltd.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+  <style>
+/* ═══════════════════════════════════════════════════════════════
+   RESET & TOKENS
+═══════════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy-deep:#0f1a2e;
+  --navy-mid:#1a2340;
+  --navy-card:#1e2a45;
+  --gold:#c9a84c;
+  --gold-light:#e0bf6e;
+  --gold-dim:rgba(201,168,76,0.18);
+  --white:#ffffff;
+  --grey-light:#b0bcd0;
+  --grey-dim:#6b7e99;
+  --border:rgba(201,168,76,0.25);
+  --border-dim:rgba(255,255,255,0.07);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter','Rajdhani',sans-serif;
+  background:var(--navy-deep);
+  color:var(--white);
+  line-height:1.6;
+  overflow-x:hidden;
+  cursor:none; /* hidden — replaced by custom cursor */
+}
+/* prefers-reduced-motion override */
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:0.01ms!important;transition-duration:0.01ms!important}
+  body{cursor:auto}
+  #cursor,#cursor-dot{display:none}
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CUSTOM CURSOR
+═══════════════════════════════════════════════════════════════ */
+#cursor{
+  position:fixed;width:32px;height:32px;
+  pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:width .25s,height .25s,opacity .2s;
+}
+#cursor::before,#cursor::after{
+  content:'';position:absolute;background:var(--gold);
+  left:50%;top:50%;transform:translate(-50%,-50%);
+}
+/* horizontal bar */
+#cursor::before{width:100%;height:1.5px}
+/* vertical bar */
+#cursor::after{width:1.5px;height:100%}
+#cursor-dot{
+  position:fixed;width:5px;height:5px;border-radius:50%;
+  background:var(--gold);pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);
+}
+body.cursor-hover #cursor{width:46px;height:46px;opacity:.7}
+
+/* ═══════════════════════════════════════════════════════════════
+   SCROLL PROGRESS BAR
+═══════════════════════════════════════════════════════════════ */
+#scroll-progress{
+  position:fixed;right:0;top:0;width:3px;height:0%;
+  background:linear-gradient(to bottom,var(--gold),rgba(201,168,76,.2));
+  z-index:200;transition:height .05s linear;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════════════════════════ */
+.label{
+  font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:600;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--gold);
+}
+.section-heading{
+  font-family:'Rajdhani',sans-serif;
+  font-size:clamp(1.8rem,3.5vw,2.8rem);
+  font-weight:700;color:var(--white);line-height:1.2;
+}
+.container{max-width:1180px;margin:0 auto;padding:0 1.5rem}
+section{padding:96px 0}
+
+/* init-hidden — used before GSAP takes over */
+.gsap-hidden{opacity:0;transform:translateY(30px)}
+.gsap-hidden-left{opacity:0;transform:translateX(-60px)}
+.gsap-hidden-right{opacity:0;transform:translateX(60px)}
+
+/* ═══════════════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════════════ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:transparent;
+  border-bottom:1px solid transparent;
+  transition:background .4s,border-color .4s,backdrop-filter .4s;
+}
+nav.scrolled{
+  background:rgba(15,26,46,.92);
+  backdrop-filter:blur(16px);
+  border-bottom-color:var(--border-dim);
+}
+.nav-inner{
+  display:flex;align-items:center;justify-content:space-between;
+  height:64px;max-width:1180px;margin:0 auto;padding:0 1.5rem;
+}
+.nav-logo{
+  font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700;
+  letter-spacing:.15em;color:var(--white);text-decoration:none;
+}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{
+  font-family:'Inter',sans-serif;font-size:.88rem;font-weight:500;
+  color:var(--grey-light);text-decoration:none;letter-spacing:.03em;
+  position:relative;transition:color .2s;padding-bottom:4px;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:0;left:0;width:0;height:1.5px;
+  background:var(--gold);transition:width .3s ease;
+}
+.nav-links a.active,
+.nav-links a:hover{color:var(--white)}
+.nav-links a.active::after,
+.nav-links a:hover::after{width:100%}
+
+/* briefing button shimmer */
+.btn-briefing{
+  font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;
+  background:var(--gold);color:var(--navy-deep);
+  border:none;border-radius:6px;padding:.55rem 1.2rem;
+  cursor:none;text-decoration:none;
+  position:relative;overflow:hidden;
+  transition:background .2s;
+}
+.btn-briefing::after{
+  content:'';position:absolute;top:0;left:-100%;
+  width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);
+  transform:skewX(-20deg);transition:left .5s ease;
+}
+.btn-briefing:hover::after{left:160%}
+.btn-briefing:hover{background:var(--gold-light)}
+
+.nav-hamburger{
+  display:none;flex-direction:column;gap:5px;
+  cursor:pointer;background:none;border:none;padding:4px;
+}
+.nav-hamburger span{
+  display:block;width:22px;height:2px;
+  background:var(--white);border-radius:2px;transition:transform .3s,opacity .3s;
+}
+.mobile-nav{
+  display:none;flex-direction:column;
+  background:rgba(15,26,46,.98);
+  border-top:1px solid var(--border-dim);padding:.5rem 0 1rem;
+}
+.mobile-nav.open{display:flex}
+.mobile-nav a{
+  padding:.75rem 1.5rem;font-family:'Inter',sans-serif;
+  font-size:.95rem;color:var(--grey-light);text-decoration:none;
+}
+.mobile-nav a:hover{color:var(--white)}
+.mobile-nav .btn-briefing{margin:.5rem 1.5rem;display:inline-block;text-align:center}
+
+/* ═══════════════════════════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════════════════════════ */
+#hero{
+  min-height:100vh;display:flex;align-items:center;
+  justify-content:center;text-align:center;
+  background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(201,168,76,.06) 0%,transparent 65%),
+             linear-gradient(160deg,#1a2340 0%,#0f1a2e 60%,#091525 100%);
+  position:relative;overflow:hidden;padding:80px 1.5rem 60px;
+}
+
+/* scanline overlay */
+#hero::after{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(
+    0deg,transparent,transparent 2px,rgba(0,0,0,.04) 2px,rgba(0,0,0,.04) 4px
+  );
+  pointer-events:none;z-index:1;
+}
+
+/* particle canvas */
+#particle-canvas{
+  position:absolute;inset:0;width:100%;height:100%;
+  pointer-events:none;z-index:0;
+}
+
+.hero-content{
+  position:relative;z-index:2;max-width:720px;
+}
+
+/* star logo */
+.star-logo{
+  display:flex;flex-direction:column;align-items:center;
+  margin-bottom:1.8rem;opacity:0;
+}
+.stars-row{display:flex;gap:10px;align-items:flex-end;margin-bottom:8px}
+.star-wrap{display:flex;flex-direction:column;align-items:center}
+.star-wrap.center{margin-bottom:18px}
+.star-svg{
+  width:28px;height:28px;fill:var(--gold);
+  filter:drop-shadow(0 0 10px rgba(201,168,76,.7));
+}
+.star-wrap.center .star-svg{width:34px;height:34px}
+.star-lines{display:flex;gap:3px;margin-top:6px}
+.star-lines span{
+  display:block;width:1.5px;height:14px;
+  background:var(--gold);opacity:.7;
+}
+.wordmark{
+  font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;
+  letter-spacing:.45em;color:var(--white);margin-top:10px;
+}
+/* gold glow pulse on logo */
+@keyframes goldPulse{
+  0%,100%{filter:drop-shadow(0 0 6px rgba(201,168,76,.5))}
+  50%{filter:drop-shadow(0 0 18px rgba(201,168,76,.9))}
+}
+.star-logo.animated .star-svg{animation:goldPulse 3s ease-in-out infinite}
+
+.hero-pill{
+  display:inline-block;font-family:'Inter',sans-serif;font-size:.7rem;
+  font-weight:500;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold);border:1px solid var(--border);border-radius:100px;
+  padding:.35rem 1rem;margin-bottom:1.6rem;opacity:0;
+}
+.hero-headline{
+  font-family:'Rajdhani',sans-serif;
+  font-size:clamp(2rem,5vw,3.4rem);font-weight:700;
+  color:var(--white);line-height:1.15;margin-bottom:1.1rem;
+  letter-spacing:-.01em;
+}
+/* each word wrapped in span.word for stagger */
+.hero-headline .word{display:inline-block;overflow:hidden;margin-right:.25em}
+.hero-headline .word-inner{display:inline-block;transform:translateY(110%);opacity:0}
+.hero-sub{
+  font-size:1rem;color:var(--grey-light);max-width:560px;
+  margin:0 auto 2.2rem;line-height:1.7;opacity:0;
+}
+.hero-ctas{
+  display:flex;gap:1rem;justify-content:center;
+  flex-wrap:wrap;margin-bottom:2.4rem;
+}
+.btn-primary{
+  font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;
+  background:var(--gold);color:var(--navy-deep);
+  border:none;border-radius:7px;padding:.75rem 1.6rem;
+  cursor:none;text-decoration:none;
+  position:relative;overflow:hidden;
+  transition:background .2s;opacity:0;
+}
+.btn-primary::after{
+  content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);
+  transform:skewX(-20deg);transition:left .5s;
+}
+.btn-primary:hover::after{left:160%}
+.btn-primary:hover{background:var(--gold-light)}
+
+.btn-secondary{
+  font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;
+  background:transparent;color:var(--white);
+  border:1.5px solid rgba(255,255,255,.5);
+  border-radius:7px;padding:.75rem 1.6rem;
+  cursor:none;text-decoration:none;
+  transition:border-color .2s;opacity:0;
+}
+.btn-secondary:hover{border-color:var(--white)}
+
+.hero-badges{
+  display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;
+}
+.badge-pill{
+  font-family:'Inter',sans-serif;font-size:.66rem;font-weight:500;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--grey-light);
+  border:1px solid var(--border-dim);border-radius:100px;
+  padding:.28rem .8rem;opacity:0;transform:translateX(-20px);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CAPABILITIES
+═══════════════════════════════════════════════════════════════ */
+#capabilities{
+  background:var(--navy-mid);position:relative;overflow:hidden;
+}
+/* crosshair grid bg */
+#capabilities::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(201,168,76,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(201,168,76,.04) 1px,transparent 1px);
+  background-size:50px 50px;
+  pointer-events:none;
+}
+/* crosshair centre marks */
+#capabilities::after{
+  content:'';position:absolute;
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  width:120px;height:120px;
+  border:1px solid rgba(201,168,76,.08);
+  border-radius:50%;pointer-events:none;
+}
+
+.caps-header{text-align:center;margin-bottom:3.5rem}
+.caps-header .label{display:block;margin-bottom:.6rem}
+
+/* animated rule before heading */
+.caps-header .heading-rule{
+  display:block;height:1px;width:0;
+  background:linear-gradient(90deg,var(--gold),transparent);
+  margin-bottom:.8rem;
+}
+
+.caps-cols{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem}
+.caps-col-label{
+  font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--gold);
+  margin-bottom:1.2rem;padding-bottom:.6rem;border-bottom:1px solid var(--border);
+}
+.cap-cards{display:flex;flex-direction:column;gap:1rem}
+
+.cap-card{
+  background:var(--navy-card);border:1px solid var(--border-dim);
+  border-left:3px solid transparent;
+  border-radius:10px;padding:1.3rem 1.4rem;
+  display:flex;gap:1rem;align-items:flex-start;
+  transition:border-color .3s,border-left-color .3s,
+             background .3s,box-shadow .3s;
+  position:relative;overflow:hidden;
+}
+.cap-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at left center,rgba(201,168,76,.06),transparent 70%);
+  opacity:0;transition:opacity .3s;
+}
+.cap-card:hover{
+  border-left-color:var(--gold);
+  box-shadow:0 0 24px rgba(201,168,76,.07);
+}
+.cap-card:hover::before{opacity:1}
+.cap-card:hover .cap-icon svg{transform:scale(1.15)}
+
+.cap-icon{
+  width:40px;height:40px;flex-shrink:0;
+  background:rgba(201,168,76,.1);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .3s;
+}
+.cap-card:hover .cap-icon{background:rgba(201,168,76,.18)}
+.cap-icon svg{
+  width:20px;height:20px;stroke:var(--gold);fill:none;
+  stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;
+  transition:transform .3s;
+}
+.cap-title{
+  font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;
+  color:var(--white);margin-bottom:.25rem;
+}
+.cap-desc{font-size:.83rem;color:var(--grey-light);line-height:1.5}
+
+/* ═══════════════════════════════════════════════════════════════
+   PRODUCTS
+═══════════════════════════════════════════════════════════════ */
+#products{background:var(--navy-deep)}
+.products-header{text-align:center;margin-bottom:3rem}
+.products-header .label{display:block;margin-bottom:.6rem}
+.products-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem}
+
+.product-card{
+  background:var(--navy-card);border:1px solid var(--border-dim);
+  border-radius:12px;overflow:visible;
+  transition:box-shadow .4s,transform .4s;
+  position:relative;
+}
+/* gold corner bracket */
+.product-card::before,.product-card::after{
+  content:'';position:absolute;width:18px;height:18px;
+  border-color:transparent;border-style:solid;
+  transition:border-color .3s,opacity .3s;opacity:0;z-index:3;
+  pointer-events:none;
+}
+.product-card::before{
+  top:-1px;left:-1px;
+  border-top:2px solid var(--gold);border-left:2px solid var(--gold);
+}
+.product-card::after{
+  bottom:-1px;right:-1px;
+  border-bottom:2px solid var(--gold);border-right:2px solid var(--gold);
+}
+.product-card:hover{
+  box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 30px rgba(201,168,76,.08);
+  transform:translateY(-6px);
+}
+.product-card:hover::before,
+.product-card:hover::after{opacity:1}
+
+/* inner clip to prevent img overflow on rounded corners */
+.product-card-inner{border-radius:12px;overflow:hidden}
+
+.product-img-placeholder{
+  width:100%;aspect-ratio:16/10;
+  background:linear-gradient(135deg,#1e2a45 0%,#141f35 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:.6rem;border-bottom:1px solid var(--border-dim);
+  position:relative;overflow:hidden;
+}
+.product-img-placeholder::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+.placeholder-label{
+  font-family:'Inter',sans-serif;font-size:.72rem;color:var(--grey-dim);
+  letter-spacing:.05em;position:relative;z-index:1;
+  text-align:center;padding:0 1rem;
+}
+.placeholder-icon{position:relative;z-index:1}
+.placeholder-icon svg{width:48px;height:48px;stroke:rgba(201,168,76,.3);fill:none;stroke-width:1}
+
+.product-body{padding:1.5rem 1.6rem}
+.product-logo-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.8rem}
+.mini-stars{display:flex;gap:4px;align-items:center}
+.mini-star{width:10px;height:10px;fill:var(--gold)}
+.product-logo-text{
+  font-family:'Rajdhani',sans-serif;font-size:.65rem;font-weight:700;
+  letter-spacing:.2em;color:var(--gold);opacity:.8;
+}
+.product-title{
+  font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700;
+  color:var(--white);letter-spacing:.06em;line-height:1;margin-bottom:.4rem;
+}
+/* char-by-char reveal target — each char wrapped in span on hover via JS */
+.product-title .char{display:inline-block}
+.product-subtitle{font-size:.83rem;color:var(--grey-light);line-height:1.5}
+
+/* ═══════════════════════════════════════════════════════════════
+   LEADERSHIP
+═══════════════════════════════════════════════════════════════ */
+#about{background:var(--navy-mid)}
+.leadership-header{text-align:center;margin-bottom:3rem}
+.leadership-header .label{display:block;margin-bottom:.6rem}
+.stats-row{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1.5rem;margin-bottom:3.5rem;
+}
+.stat-box{
+  text-align:center;background:var(--navy-card);
+  border:1px solid var(--border-dim);border-radius:10px;padding:1.8rem 1rem;
+}
+.stat-number{
+  font-family:'Rajdhani',sans-serif;font-size:2.8rem;font-weight:700;
+  color:var(--gold);line-height:1;margin-bottom:.4rem;
+}
+.stat-label{font-size:.82rem;color:var(--grey-light);letter-spacing:.05em}
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem}
+.team-card{text-align:center}
+.team-photo-wrap{position:relative;width:130px;margin:0 auto 1rem;cursor:none}
+.team-photo{
+  width:130px;height:130px;border-radius:50%;
+  background:linear-gradient(135deg,#1e2a45,#141f35);
+  border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;z-index:1;
+}
+/* rotating ring */
+.team-photo-wrap::before{
+  content:'';position:absolute;inset:-6px;border-radius:50%;
+  border:1.5px dashed rgba(201,168,76,.3);
+  transition:border-color .3s;
+}
+.team-photo-wrap:hover::before{
+  animation:spinRing 4s linear infinite;
+  border-color:rgba(201,168,76,.7);
+}
+@keyframes spinRing{to{transform:rotate(360deg)}}
+.team-photo-initials{
+  font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;
+  color:var(--gold);opacity:.7;
+}
+.team-name{
+  font-family:'Rajdhani',sans-serif;font-size:1.05rem;font-weight:700;
+  color:var(--white);margin-bottom:.2rem;
+}
+.team-role{font-size:.8rem;color:var(--gold);font-weight:500;margin-bottom:.25rem}
+.team-bg{font-size:.77rem;color:var(--grey-dim)}
+
+/* ═══════════════════════════════════════════════════════════════
+   R&D
+═══════════════════════════════════════════════════════════════ */
+#rnd{background:var(--navy-deep)}
+.rnd-header{text-align:center;margin-bottom:2.5rem}
+.rnd-header .label{display:block;margin-bottom:.6rem}
+.rnd-img-placeholder{
+  width:100%;aspect-ratio:1600/400;
+  background:linear-gradient(135deg,#1a2340 0%,#0f1a2e 100%);
+  border:1px solid var(--border-dim);border-radius:12px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:.5rem;position:relative;overflow:hidden;margin-bottom:2.5rem;
+}
+.rnd-img-placeholder::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
+  background-size:50px 50px;
+}
+/* radar sweep line */
+.rnd-sweep{
+  position:absolute;top:0;left:-100%;width:120px;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(201,168,76,.12),transparent);
+  pointer-events:none;z-index:2;
+}
+.rnd-placeholder-text{
+  font-family:'Inter',sans-serif;font-size:.75rem;color:var(--grey-dim);
+  letter-spacing:.05em;position:relative;z-index:3;
+}
+.rnd-placeholder-icon{position:relative;z-index:3}
+.rnd-placeholder-icon svg{width:40px;height:40px;stroke:rgba(201,168,76,.25);fill:none;stroke-width:1}
+.rnd-badges{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem}
+.rnd-badge{
+  background:var(--navy-card);border:1px solid var(--border-dim);
+  border-radius:10px;padding:1.2rem 1rem;text-align:center;
+  transition:border-color .2s,transform .2s;
+}
+.rnd-badge:hover{border-color:var(--border)}
+.rnd-badge-value{
+  font-family:'Rajdhani',sans-serif;font-size:1.25rem;font-weight:700;
+  color:var(--gold);margin-bottom:.3rem;
+}
+.rnd-badge-label{font-size:.75rem;color:var(--grey-light);line-height:1.4}
+
+/* ═══════════════════════════════════════════════════════════════
+   CONTACT
+═══════════════════════════════════════════════════════════════ */
+#contact{
+  background:var(--navy-mid);position:relative;overflow:hidden;
+}
+/* topographic contour bg */
+#contact::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:
+    radial-gradient(ellipse 120% 80% at 80% 50%,rgba(201,168,76,.03) 0%,transparent 60%),
+    repeating-radial-gradient(circle at 70% 50%,transparent 0,transparent 30px,rgba(201,168,76,.02) 30px,rgba(201,168,76,.02) 31px),
+    repeating-radial-gradient(circle at 70% 50%,transparent 0,transparent 60px,rgba(201,168,76,.015) 60px,rgba(201,168,76,.015) 61px),
+    repeating-radial-gradient(circle at 70% 50%,transparent 0,transparent 90px,rgba(201,168,76,.012) 90px,rgba(201,168,76,.012) 91px);
+}
+.contact-inner{
+  display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;
+  position:relative;z-index:1;
+}
+.contact-left .label{display:block;margin-bottom:.6rem}
+.contact-note{
+  font-size:.85rem;color:var(--grey-dim);font-style:italic;
+  margin-top:.7rem;line-height:1.5;
+}
+.contact-address{margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border-dim)}
+.contact-address-name{
+  font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:600;
+  color:var(--white);margin-bottom:.3rem;
+}
+.contact-address-detail{font-size:.82rem;color:var(--grey-light);line-height:1.6}
+.contact-scomet{font-size:.72rem;color:var(--grey-dim);margin-top:1rem;letter-spacing:.03em}
+.contact-form{display:flex;flex-direction:column;gap:1rem}
+.form-field{display:flex;flex-direction:column;gap:.4rem}
+.form-field label{
+  font-family:'Inter',sans-serif;font-size:.78rem;font-weight:500;
+  color:var(--grey-light);letter-spacing:.04em;
+}
+.form-field input{
+  background:rgba(255,255,255,.04);
+  border:none;border-bottom:1px solid var(--border-dim);
+  padding:.7rem .2rem;color:var(--white);
+  font-family:'Inter',sans-serif;font-size:.9rem;
+  outline:none;
+  position:relative;
+  transition:border-color .3s;
+}
+/* expand-from-center bottom border on focus */
+.form-field{position:relative}
+.form-field::after{
+  content:'';position:absolute;bottom:0;left:50%;right:50%;
+  height:1.5px;background:var(--gold);
+  transition:left .3s ease,right .3s ease;
+  pointer-events:none;
+}
+.form-field:focus-within::after{left:0;right:0}
+.form-field input::placeholder{color:var(--grey-dim)}
+
+/* submit button fill-from-left */
+.btn-submit{
+  font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;
+  background:var(--gold);color:var(--navy-deep);
+  border:1.5px solid var(--gold);border-radius:7px;
+  padding:.8rem 1.6rem;cursor:none;
+  position:relative;overflow:hidden;z-index:0;
+  transition:color .35s;
+}
+.btn-submit::before{
+  content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:var(--navy-deep);z-index:-1;
+  transition:left .35s ease;
+}
+.btn-submit:hover::before{left:0}
+.btn-submit:hover{color:var(--gold)}
+.btn-submit:disabled{opacity:.6;cursor:default}
+
+/* WhatsApp alt button */
+.btn-wa-alt{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'Inter',sans-serif;font-size:.82rem;font-weight:500;
+  color:var(--grey-light);text-decoration:none;
+  border:1px solid var(--border-dim);border-radius:7px;
+  padding:.75rem 1.1rem;cursor:none;
+  transition:border-color .2s,color .2s,background .2s;
+}
+.btn-wa-alt svg{width:16px;height:16px;flex-shrink:0;color:#25d366}
+.btn-wa-alt:hover{border-color:rgba(37,211,102,.4);color:var(--white);background:rgba(37,211,102,.06)}
+
+.form-actions{display:flex;gap:.8rem;align-items:center;flex-wrap:wrap;margin-top:.3rem}
+
+.form-success{
+  display:none;padding:1rem 1.2rem;
+  background:rgba(201,168,76,.08);border:1px solid var(--border);
+  border-radius:7px;font-size:.85rem;color:var(--gold);
+  line-height:1.5;
+}
+.form-success.show{display:block}
+
+/* form card wrapper */
+.form-card{
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border-dim);
+  border-radius:14px;padding:2rem 2rem 1.8rem;
+}
+.form-card-header{margin-bottom:1.6rem;padding-bottom:1.2rem;border-bottom:1px solid var(--border-dim)}
+.form-card-title{
+  font-family:'Rajdhani',sans-serif;font-size:1.15rem;font-weight:700;
+  color:var(--white);margin-bottom:.3rem;
+}
+.form-card-sub{font-size:.78rem;color:var(--grey-dim);line-height:1.5}
+
+/* contact channels */
+.contact-channels{
+  display:flex;flex-direction:column;gap:.7rem;
+  margin-top:1.8rem;
+}
+.contact-channel{
+  display:flex;align-items:center;gap:1rem;
+  padding:.9rem 1.1rem;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border-dim);
+  border-radius:10px;text-decoration:none;
+  transition:border-color .25s,background .25s,transform .25s;
+  cursor:none;
+}
+.contact-channel:hover{
+  border-color:var(--border);
+  background:rgba(201,168,76,.05);
+  transform:translateX(4px);
+}
+.channel-icon{
+  width:38px;height:38px;flex-shrink:0;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+}
+.channel-icon svg{width:18px;height:18px}
+.channel-icon--wa{background:rgba(37,211,102,.12);color:#25d366}
+.channel-icon--email{background:rgba(201,168,76,.12);color:var(--gold)}
+.channel-icon--li{background:rgba(10,102,194,.15);color:#0a66c2}
+.channel-icon--ig{background:rgba(225,48,108,.12);color:#e1306c}
+.channel-text{flex:1;min-width:0}
+.channel-label{
+  font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;
+  color:var(--white);letter-spacing:.03em;
+}
+.channel-value{font-size:.75rem;color:var(--grey-dim);margin-top:1px}
+.channel-arrow{width:16px;height:16px;flex-shrink:0;color:var(--grey-dim);
+  transition:transform .25s,color .25s}
+.contact-channel:hover .channel-arrow{transform:translateX(3px);color:var(--gold)}
+
+/* ═══════════════════════════════════════════════════════════════
+   FOOTER — upgraded
+═══════════════════════════════════════════════════════════════ */
+footer{
+  background:var(--navy-deep);position:relative;
+}
+.footer-rule{
+  position:absolute;top:0;left:0;height:1px;width:0;
+  background:linear-gradient(90deg,var(--gold),rgba(201,168,76,.1));
+}
+.footer-top{
+  border-top:1px solid var(--border-dim);
+  padding:3rem 0 2.5rem;
+}
+.footer-top-inner{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr 1fr;
+  gap:2.5rem;
+}
+.footer-brand{}
+.footer-logo{
+  display:flex;align-items:center;
+  font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;
+  letter-spacing:.15em;color:var(--white);
+  margin-bottom:.8rem;
+}
+.footer-brand-desc{
+  font-size:.78rem;color:var(--grey-dim);line-height:1.65;
+  max-width:240px;margin-bottom:1.4rem;
+}
+.footer-socials{display:flex;gap:.6rem}
+.footer-social-btn{
+  width:34px;height:34px;border-radius:7px;
+  border:1px solid var(--border-dim);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--grey-dim);text-decoration:none;
+  transition:border-color .2s,color .2s,background .2s;
+  cursor:none;
+}
+.footer-social-btn svg{width:15px;height:15px}
+.footer-social-btn:hover{border-color:var(--border);color:var(--gold);background:var(--gold-dim)}
+.footer-col{}
+.footer-col-title{
+  font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--gold);
+  margin-bottom:1rem;
+}
+.footer-col a{
+  display:block;font-size:.8rem;color:var(--grey-dim);
+  text-decoration:none;padding:.28rem 0;
+  transition:color .2s,padding-left .2s;
+}
+.footer-col a:hover{color:var(--grey-light);padding-left:4px}
+.footer-bottom{
+  border-top:1px solid var(--border-dim);
+  padding:1.2rem 0;
+}
+.footer-inner{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:.8rem;
+}
+.footer-copy{font-size:.75rem;color:var(--grey-dim)}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════════ */
+@media(max-width:900px){
+  .caps-cols{grid-template-columns:1fr}
+  .products-grid{grid-template-columns:1fr}
+  .rnd-badges{grid-template-columns:repeat(3,1fr)}
+  .contact-inner{grid-template-columns:1fr;gap:2.5rem}
+  .footer-top-inner{grid-template-columns:1fr 1fr;gap:2rem}
+  .footer-brand{grid-column:1/-1}
+}
+@media(max-width:640px){
+  section{padding:64px 0}
+  .nav-links,.nav-cta{display:none}
+  .nav-hamburger{display:flex}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .team-grid{grid-template-columns:1fr 1fr}
+  .rnd-badges{grid-template-columns:repeat(2,1fr)}
+  .footer-inner{flex-direction:column;align-items:flex-start}
+  .footer-top-inner{grid-template-columns:1fr}
+  .footer-brand{grid-column:auto}
+  .form-card{padding:1.4rem 1.2rem}
+  body{cursor:auto}
+  #cursor,#cursor-dot{display:none}
+}
+@media(max-width:420px){
+  .team-grid{grid-template-columns:1fr}
+  .stats-row{grid-template-columns:1fr}
+}
+  </style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div id="cursor" aria-hidden="true"></div>
+<div id="cursor-dot" aria-hidden="true"></div>
+
+<!-- Scroll progress -->
+<div id="scroll-progress" aria-hidden="true"></div>
+
+<!-- ═══════ NAVIGATION ════════════════════════════════════════ -->
+<nav id="main-nav">
+  <div class="nav-inner">
+    <a href="#hero" class="nav-logo">PRIDONA</a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#about"        data-section="about">About</a></li>
+      <li><a href="#capabilities" data-section="capabilities">Capabilities</a></li>
+      <li><a href="#rnd"          data-section="rnd">R&amp;D</a></li>
+      <li><a href="#contact"      data-section="contact">Contact</a></li>
+    </ul>
+    <a href="https://wa.me/919999999999?text=Hello%20PRIDONA%2C%20I%20would%20like%20to%20request%20a%20briefing." class="btn-briefing nav-cta" target="_blank" rel="noopener">Request a Briefing</a>
+    <button class="nav-hamburger" id="hamburger" aria-label="Open navigation menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="mobile-nav" id="mobileNav" role="navigation" aria-label="Mobile navigation">
+    <a href="#about"        onclick="closeMobileNav()">About</a>
+    <a href="#capabilities" onclick="closeMobileNav()">Capabilities</a>
+    <a href="#rnd"          onclick="closeMobileNav()">R&amp;D</a>
+    <a href="#contact"      onclick="closeMobileNav()">Contact</a>
+    <a href="https://wa.me/919999999999?text=Hello%20PRIDONA%2C%20I%20would%20like%20to%20request%20a%20briefing." class="btn-briefing" target="_blank" rel="noopener" onclick="closeMobileNav()">Request a Briefing</a>
+  </div>
+</nav>
+
+<!-- ═══════ HERO ══════════════════════════════════════════════ -->
+<section id="hero">
+  <canvas id="particle-canvas"></canvas>
+
+  <div class="hero-content">
+    <div class="star-logo" id="starLogo" role="img" aria-label="PRIDONA logo — three gold stars">
+      <div class="stars-row">
+        <div class="star-wrap side">
+          <svg class="star-svg" viewBox="0 0 24 24" aria-hidden="true">
+            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+          </svg>
+          <div class="star-lines"><span></span><span></span><span></span></div>
+        </div>
+        <div class="star-wrap center">
+          <svg class="star-svg" viewBox="0 0 24 24" aria-hidden="true">
+            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+          </svg>
+          <div class="star-lines"><span></span><span></span><span></span></div>
+        </div>
+        <div class="star-wrap side">
+          <svg class="star-svg" viewBox="0 0 24 24" aria-hidden="true">
+            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+          </svg>
+          <div class="star-lines"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+      <div class="wordmark">PRIDONA</div>
+    </div>
+
+    <span class="hero-pill" id="heroPill">Defence Systems &middot; Bengaluru, India</span>
+
+    <h1 class="hero-headline" id="heroHeadline">Indigenous combat systems for India's land and sea forces</h1>
+
+    <p class="hero-sub" id="heroSub">PRIDONA designs, qualifies, and manufactures mission-grade platforms for the Indian Army and Indian Navy — built in India, for the operator.</p>
+
+    <div class="hero-ctas">
+      <a href="https://wa.me/919999999999?text=Hello%20PRIDONA%2C%20I%20would%20like%20to%20request%20a%20briefing." class="btn-primary" id="heroCta1" target="_blank" rel="noopener">
+        <svg style="width:16px;height:16px;fill:currentColor;vertical-align:middle;margin-right:7px;margin-top:-2px" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.555 4.122 1.524 5.855L0 24l6.334-1.491A11.934 11.934 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.854 0-3.599-.487-5.112-1.34l-.366-.214-3.762.886.939-3.664-.234-.376A9.944 9.944 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+        Request a Briefing
+      </a>
+      <a href="#capabilities" class="btn-secondary" id="heroCta2">View Capabilities</a>
+    </div>
+
+    <div class="hero-badges" aria-label="Certifications and compliance">
+      <span class="badge-pill">Make in India</span>
+      <span class="badge-pill">iDEX &middot; DIO</span>
+      <span class="badge-pill">Buy Indian – IDDM</span>
+      <span class="badge-pill">DPIIT Registered</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ CAPABILITIES ══════════════════════════════════════ -->
+<section id="capabilities">
+  <div class="container">
+    <div class="caps-header">
+      <span class="label">Capabilities</span>
+      <span class="heading-rule" id="capsRule"></span>
+      <h2 class="section-heading" id="capsHeading" style="opacity:0">Systems engineered for two services</h2>
+    </div>
+    <div class="caps-cols">
+      <!-- Army -->
+      <div>
+        <div class="caps-col-label">Indian Army</div>
+        <div class="cap-cards">
+          <article class="cap-card">
+            <div class="cap-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><path d="M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"/><circle cx="12" cy="12" r="7" stroke-dasharray="2 3"/></svg>
+            </div>
+            <div>
+              <div class="cap-title">Counter-UAS &amp; Air Defence</div>
+              <div class="cap-desc">Detect, track, neutralise hostile drones.</div>
+            </div>
+          </article>
+          <article class="cap-card">
+            <div class="cap-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M2 12c0-5.52 4.48-10 10-10s10 4.48 10 10"/><path d="M5 12c0-3.87 3.13-7 7-7s7 3.13 7 7"/><path d="M8 12c0-2.21 1.79-4 4-4s4 1.79 4 4"/><circle cx="12" cy="12" r="1.5" fill="var(--gold)" stroke="none"/></svg>
+            </div>
+            <div>
+              <div class="cap-title">Secure Tactical Comms</div>
+              <div class="cap-desc">Encrypted software-defined radios.</div>
+            </div>
+          </article>
+          <article class="cap-card">
+            <div class="cap-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="6" cy="14" r="4"/><circle cx="18" cy="14" r="4"/><path d="M6 10V6a2 2 0 0 1 4 0v2h4V6a2 2 0 0 1 4 0v4"/><path d="M10 8h4"/></svg>
+            </div>
+            <div>
+              <div class="cap-title">Ground ISR &amp; Sensors</div>
+              <div class="cap-desc">EO/IR surveillance for border domains.</div>
+            </div>
+          </article>
+        </div>
+      </div>
+      <!-- Navy -->
+      <div>
+        <div class="caps-col-label">Indian Navy</div>
+        <div class="cap-cards">
+          <article class="cap-card">
+            <div class="cap-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4.5 12.5a8 8 0 0 1 15 0"/><path d="M7.5 12.5a5 5 0 0 1 9 0"/><path d="M12 12.5V20"/><path d="M9 20h6"/><circle cx="12" cy="12.5" r="1" fill="var(--gold)" stroke="none"/></svg>
+            </div>
+            <div>
+              <div class="cap-title">Combat Management Systems</div>
+              <div class="cap-desc">Sensor-to-shooter integration.</div>
+            </div>
+          </article>
+          <article class="cap-card">
+            <div class="cap-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M2 12h2"/><path d="M5 7l3 5-3 5"/><path d="M10 5l4 7-4 7"/><path d="M16 3l4 9-4 9"/><path d="M22 12h-2"/></svg>
+            </div>
+            <div>
+              <div class="cap-title">Sonar &amp; Underwater Systems</div>
+              <div class="cap-desc">Anti-submarine acoustic suites.</div>
+            </div>
+          </article>
+          <article class="cap-card">
+            <div class="cap-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 2v8M4.93 7.93l2.12 2.12M19.07 7.93l-2.12 2.12"/><path d="M12 10c-4.42 0-8 1.79-8 4v2h16v-2c0-2.21-3.58-4-8-4z"/><path d="M12 10v10"/></svg>
+            </div>
+            <div>
+              <div class="cap-title">Shipborne EW &amp; Surveillance</div>
+              <div class="cap-desc">Maritime domain awareness.</div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ PRODUCTS ══════════════════════════════════════════ -->
+<section id="products">
+  <div class="container">
+    <div class="products-header">
+      <span class="label gsap-hidden">Products</span>
+      <h2 class="section-heading gsap-hidden">Mission platforms</h2>
+    </div>
+    <div class="products-grid">
+      <!-- DART -->
+      <article class="product-card gsap-hidden-left" id="dartCard">
+        <div class="product-card-inner">
+          <div class="product-img-placeholder" role="img" aria-label="DART product image placeholder — 640×400px">
+            <div class="placeholder-icon" aria-hidden="true">
+              <svg viewBox="0 0 64 64"><path d="M32 8 L56 40 L32 28 L8 40 Z" stroke-width="1.2"/><path d="M32 28 L32 56" stroke-width="1.2"/><circle cx="32" cy="30" r="4" stroke-width="1"/><path d="M18 48 L32 36 L46 48" stroke-width="1"/></svg>
+            </div>
+            <div class="placeholder-label">[DART product image — 640&times;400px]</div>
+          </div>
+          <div class="product-body">
+            <div class="product-logo-row">
+              <div class="mini-stars" aria-hidden="true">
+                <svg class="mini-star" viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+                <svg class="mini-star" viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+                <svg class="mini-star" viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+              </div>
+              <span class="product-logo-text">PRIDONA</span>
+            </div>
+            <div class="product-title" data-text="DART">DART</div>
+            <div class="product-subtitle">Drone for Assault, Reconnaissance and Targeting</div>
+          </div>
+        </div>
+      </article>
+      <!-- SEA SCOUT -->
+      <article class="product-card gsap-hidden-right" id="seaScoutCard">
+        <div class="product-card-inner">
+          <div class="product-img-placeholder" role="img" aria-label="Sea Scout product image placeholder — 640×400px">
+            <div class="placeholder-icon" aria-hidden="true">
+              <svg viewBox="0 0 64 64"><path d="M8 42 Q16 30 32 30 Q48 30 56 42 Z" stroke-width="1.2"/><path d="M24 30 L28 14 L32 12 L36 14 L40 30" stroke-width="1.2"/><circle cx="32" cy="12" r="3" stroke-width="1"/><path d="M4 46 Q18 54 32 50 Q46 54 60 46" stroke-width="1.2"/></svg>
+            </div>
+            <div class="placeholder-label">[Sea Scout USV image — 640&times;400px]</div>
+          </div>
+          <div class="product-body">
+            <div class="product-logo-row">
+              <svg style="width:18px;height:18px;stroke:var(--gold);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="7" r="3"/><path d="M12 10v12M6 12H4a8 8 0 0 0 16 0h-2"/>
+              </svg>
+              <div class="mini-stars" style="margin-left:6px" aria-hidden="true">
+                <svg class="mini-star" viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+                <svg class="mini-star" viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+                <svg class="mini-star" viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+              </div>
+              <span class="product-logo-text">SEA SCOUT &middot; PRIDONA</span>
+            </div>
+            <div class="product-title" data-text="SEA SCOUT">SEA SCOUT</div>
+            <div class="product-subtitle">Autonomous maritime surface vessel</div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ LEADERSHIP ════════════════════════════════════════ -->
+<section id="about">
+  <div class="container">
+    <div class="leadership-header">
+      <span class="label gsap-hidden">Leadership</span>
+      <h2 class="section-heading gsap-hidden">Built by people who have served</h2>
+    </div>
+    <div class="stats-row" role="list" aria-label="Company statistics">
+      <div class="stat-box gsap-hidden" role="listitem">
+        <div class="stat-number" data-target="120" data-suffix="+">0</div>
+        <div class="stat-label">Years combined service</div>
+      </div>
+      <div class="stat-box gsap-hidden" role="listitem">
+        <div class="stat-number" data-target="18" data-suffix="">0</div>
+        <div class="stat-label">Patents filed</div>
+      </div>
+      <div class="stat-box gsap-hidden" role="listitem">
+        <div class="stat-number" data-target="100" data-suffix="%">0</div>
+        <div class="stat-label">Indigenous design</div>
+      </div>
+    </div>
+    <div class="team-grid">
+      <div class="team-card gsap-hidden">
+        <div class="team-photo-wrap">
+          <div class="team-photo" aria-label="Photo placeholder for A. Varma">
+            <span class="team-photo-initials" aria-hidden="true">AV</span>
+          </div>
+        </div>
+        <div class="team-name">A. Varma</div>
+        <div class="team-role">Founder &amp; CEO</div>
+        <div class="team-bg">Ex-DRDO &middot; IISc</div>
+      </div>
+      <div class="team-card gsap-hidden">
+        <div class="team-photo-wrap">
+          <div class="team-photo" aria-label="Photo placeholder for R. Kulkarni">
+            <span class="team-photo-initials" aria-hidden="true">RK</span>
+          </div>
+        </div>
+        <div class="team-name">R. Kulkarni</div>
+        <div class="team-role">CTO</div>
+        <div class="team-bg">Ex-HAL &middot; IIT Bombay</div>
+      </div>
+      <div class="team-card gsap-hidden">
+        <div class="team-photo-wrap">
+          <div class="team-photo" aria-label="Photo placeholder for Cdr S. Nair">
+            <span class="team-photo-initials" aria-hidden="true">SN</span>
+          </div>
+        </div>
+        <div class="team-name">Cdr S. Nair (Retd)</div>
+        <div class="team-role">VP, Naval Systems</div>
+        <div class="team-bg">Ex-Indian Navy</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ R&D ════════════════════════════════════════════════ -->
+<section id="rnd">
+  <div class="container">
+    <div class="rnd-header">
+      <span class="label gsap-hidden">Indigenous R&amp;D</span>
+      <h2 class="section-heading gsap-hidden">Designed, qualified, and made in India</h2>
+    </div>
+    <div class="rnd-img-placeholder gsap-hidden" id="rndImage"
+         role="img" aria-label="Facility and manufacturing photo placeholder — 1600×400px">
+      <div class="rnd-sweep" id="rndSweep"></div>
+      <div class="rnd-placeholder-icon" aria-hidden="true">
+        <svg viewBox="0 0 64 64"><rect x="4" y="28" width="56" height="28" rx="2" stroke-width="1"/><path d="M4 28 L20 12 L44 12 L60 28" stroke-width="1"/><rect x="24" y="36" width="16" height="20" stroke-width="1"/><rect x="10" y="34" width="10" height="10" stroke-width="1"/><rect x="44" y="34" width="10" height="10" stroke-width="1"/></svg>
+      </div>
+      <div class="rnd-placeholder-text">[Facility / Lab / Manufacturing photo — 1600&times;400px]</div>
+    </div>
+    <div class="rnd-badges" role="list" aria-label="R&D credentials">
+      <div class="rnd-badge gsap-hidden" role="listitem">
+        <div class="rnd-badge-value">78%</div>
+        <div class="rnd-badge-label">Indigenous content</div>
+      </div>
+      <div class="rnd-badge gsap-hidden" role="listitem">
+        <div class="rnd-badge-value">IP</div>
+        <div class="rnd-badge-label">Portfolio owned</div>
+      </div>
+      <div class="rnd-badge gsap-hidden" role="listitem">
+        <div class="rnd-badge-value">iDEX</div>
+        <div class="rnd-badge-label">&middot; DIO</div>
+      </div>
+      <div class="rnd-badge gsap-hidden" role="listitem">
+        <div class="rnd-badge-value">&#10003;</div>
+        <div class="rnd-badge-label">Qualified systems</div>
+      </div>
+      <div class="rnd-badge gsap-hidden" role="listitem">
+        <div class="rnd-badge-value">In-house</div>
+        <div class="rnd-badge-label">Build &amp; integration</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ CONTACT ═══════════════════════════════════════════ -->
+<section id="contact">
+  <div class="container">
+    <div class="contact-inner">
+
+      <!-- LEFT: info -->
+      <div class="contact-left gsap-hidden">
+        <span class="label">Contact</span>
+        <h2 class="section-heading" style="margin-top:.6rem">Request a briefing</h2>
+        <p class="contact-note">Programme-specific discussions are held under NDA. All enquiries handled by senior programme staff only.</p>
+
+        <!-- contact channels -->
+        <div class="contact-channels">
+
+          <!-- WhatsApp -->
+          <a class="contact-channel" href="https://wa.me/919999999999?text=Hello%20PRIDONA%2C%20I%20would%20like%20to%20request%20a%20briefing." target="_blank" rel="noopener" aria-label="WhatsApp PRIDONA">
+            <div class="channel-icon channel-icon--wa">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.126.555 4.122 1.524 5.855L0 24l6.334-1.491A11.934 11.934 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.854 0-3.599-.487-5.112-1.34l-.366-.214-3.762.886.939-3.664-.234-.376A9.944 9.944 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+            </div>
+            <div class="channel-text">
+              <div class="channel-label">WhatsApp</div>
+              <div class="channel-value">Direct line for programme enquiries</div>
+            </div>
+            <svg class="channel-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+
+          <!-- Email -->
+          <a class="contact-channel" href="mailto:info@pridona.com" aria-label="Email PRIDONA">
+            <div class="channel-icon channel-icon--email">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            </div>
+            <div class="channel-text">
+              <div class="channel-label">Official Email</div>
+              <div class="channel-value">info@pridona.com</div>
+            </div>
+            <svg class="channel-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+
+          <!-- LinkedIn -->
+          <a class="contact-channel" href="https://www.linkedin.com/company/pridona-defence-systems" target="_blank" rel="noopener" aria-label="PRIDONA on LinkedIn">
+            <div class="channel-icon channel-icon--li">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+            </div>
+            <div class="channel-text">
+              <div class="channel-label">LinkedIn</div>
+              <div class="channel-value">PRIDONA Defence Systems</div>
+            </div>
+            <svg class="channel-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+
+          <!-- Instagram -->
+          <a class="contact-channel" href="https://www.instagram.com/pridona.official?igsh=MW43Y2p1ajk4dGR4OQ==" target="_blank" rel="noopener" aria-label="PRIDONA on Instagram">
+            <div class="channel-icon channel-icon--ig">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".5" fill="currentColor" stroke="none"/></svg>
+            </div>
+            <div class="channel-text">
+              <div class="channel-label">Instagram</div>
+              <div class="channel-value">@pridona.official</div>
+            </div>
+            <svg class="channel-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+
+        </div>
+
+        <div class="contact-address">
+          <div class="contact-address-name">PRIDONA Defence Systems Pvt. Ltd.</div>
+          <div class="contact-address-detail">Bengaluru, Karnataka, India</div>
+          <div class="contact-scomet">Export &amp; compliance — Engagements conform to SCOMET regulations.</div>
+        </div>
+      </div>
+
+      <!-- RIGHT: form -->
+      <div class="gsap-hidden">
+        <div class="form-card">
+          <div class="form-card-header">
+            <div class="form-card-title">Send an Enquiry</div>
+            <div class="form-card-sub">We respond to verified organisational contacts within 48 hours.</div>
+          </div>
+          <form class="contact-form" id="contactForm" onsubmit="handleSubmit(event)" novalidate
+                aria-label="Request a briefing form">
+            <div class="form-field">
+              <label for="fullname">Full Name</label>
+              <input type="text" id="fullname" name="fullname" placeholder="Your full name" required autocomplete="name"/>
+            </div>
+            <div class="form-field">
+              <label for="org">Organisation / Service</label>
+              <input type="text" id="org" name="org" placeholder="Organisation or service branch" required autocomplete="organization"/>
+            </div>
+            <div class="form-field">
+              <label for="email">Official Email</label>
+              <input type="email" id="email" name="email" placeholder="your@official.email" required autocomplete="email"/>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-submit">Submit Enquiry</button>
+              <a href="https://wa.me/919999999999?text=Hello%20PRIDONA%2C%20I%20would%20like%20to%20request%20a%20briefing." class="btn-wa-alt" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.126.555 4.122 1.524 5.855L0 24l6.334-1.491A11.934 11.934 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.854 0-3.599-.487-5.112-1.34l-.366-.214-3.762.886.939-3.664-.234-.376A9.944 9.944 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+                WhatsApp instead
+              </a>
+            </div>
+            <div class="form-success" id="formSuccess" role="status" aria-live="polite">
+              &#10003;&ensp;Your enquiry has been received. We'll respond to your official email within 48 hours.
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ FOOTER ════════════════════════════════════════════ -->
+<footer id="site-footer">
+  <div class="footer-rule" id="footerRule"></div>
+  <div class="footer-top">
+    <div class="container">
+      <div class="footer-top-inner">
+        <!-- brand -->
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <svg style="width:12px;height:12px;fill:var(--gold);margin-right:6px" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+            <span>PRIDONA</span>
+          </div>
+          <div class="footer-brand-desc">Indigenous defence systems for India's land and sea forces. Built in Bengaluru.</div>
+          <!-- social row -->
+          <div class="footer-socials">
+            <a href="https://wa.me/919999999999?text=Hello%20PRIDONA%2C%20I%20would%20like%20to%20request%20a%20briefing." class="footer-social-btn" target="_blank" rel="noopener" aria-label="WhatsApp">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.126.555 4.122 1.524 5.855L0 24l6.334-1.491A11.934 11.934 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.854 0-3.599-.487-5.112-1.34l-.366-.214-3.762.886.939-3.664-.234-.376A9.944 9.944 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+            </a>
+            <a href="mailto:info@pridona.com" class="footer-social-btn" aria-label="Email">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            </a>
+            <a href="https://www.linkedin.com/company/pridona-defence-systems" class="footer-social-btn" target="_blank" rel="noopener" aria-label="LinkedIn">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+            </a>
+            <a href="https://www.instagram.com/pridona.official?igsh=MW43Y2p1ajk4dGR4OQ==" class="footer-social-btn" target="_blank" rel="noopener" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".5" fill="currentColor" stroke="none"/></svg>
+            </a>
+          </div>
+        </div>
+        <!-- links -->
+        <div class="footer-col">
+          <div class="footer-col-title">Company</div>
+          <a href="#about">Leadership</a>
+          <a href="#capabilities">Capabilities</a>
+          <a href="#products">Products</a>
+          <a href="#rnd">R&amp;D</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Contact</div>
+          <a href="https://wa.me/919999999999?text=Hello%20PRIDONA%2C%20I%20would%20like%20to%20request%20a%20briefing." target="_blank" rel="noopener">WhatsApp</a>
+          <a href="mailto:info@pridona.com">info@pridona.com</a>
+          <a href="https://www.linkedin.com/company/pridona-defence-systems" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://www.instagram.com/pridona.official?igsh=MW43Y2p1ajk4dGR4OQ==" target="_blank" rel="noopener">Instagram</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Compliance</div>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Use</a>
+          <a href="#">Export Compliance</a>
+          <a href="#">SCOMET Notice</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="container">
+      <div class="footer-inner">
+        <span class="footer-copy">&#169; 2026 PRIDONA Defence Systems Pvt. Ltd. &middot; Bengaluru, Karnataka, India</span>
+        <span class="footer-copy" style="color:var(--grey-dim);font-size:.7rem">CIN: U29309KA2024PTC000000 &middot; DPIIT Recognised</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════════════ -->
+<script>
+/* ── Guard for prefers-reduced-motion ─────────────────────────── */
+const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isMobile = window.innerWidth <= 640;
+
+/* ── Cursor ───────────────────────────────────────────────────── */
+if (!prefersReduced && !isMobile) {
+  const cursor    = document.getElementById('cursor');
+  const cursorDot = document.getElementById('cursor-dot');
+  let mx = 0, my = 0, cx = 0, cy = 0;
+
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+  // dot follows instantly
+  document.addEventListener('mousemove', e => {
+    cursorDot.style.left = e.clientX + 'px';
+    cursorDot.style.top  = e.clientY + 'px';
+  });
+
+  // crosshair follows with lag
+  (function animateCursor() {
+    cx += (mx - cx) * 0.12;
+    cy += (my - cy) * 0.12;
+    cursor.style.left = cx + 'px';
+    cursor.style.top  = cy + 'px';
+    requestAnimationFrame(animateCursor);
+  })();
+
+  // expand on interactive elements
+  document.querySelectorAll('a, button, .cap-card, .product-card, .rnd-badge').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+  });
+}
+
+/* ── Scroll progress bar ──────────────────────────────────────── */
+const progressBar = document.getElementById('scroll-progress');
+window.addEventListener('scroll', () => {
+  const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+  progressBar.style.height = pct + '%';
+}, { passive: true });
+
+/* ── Nav: transparent → frosted on scroll + active link ──────── */
+const mainNav  = document.getElementById('main-nav');
+const navLinks = document.querySelectorAll('.nav-links a[data-section]');
+const sections = ['about','capabilities','rnd','contact'].map(id => document.getElementById(id));
+
+window.addEventListener('scroll', () => {
+  mainNav.classList.toggle('scrolled', window.scrollY > 40);
+
+  // active section highlight
+  let current = '';
+  sections.forEach(sec => {
+    if (sec && sec.getBoundingClientRect().top < 120) current = sec.id;
+  });
+  navLinks.forEach(a => {
+    a.classList.toggle('active', a.dataset.section === current);
+  });
+}, { passive: true });
+
+/* ── Hamburger ────────────────────────────────────────────────── */
+const hamburger = document.getElementById('hamburger');
+const mobileNav = document.getElementById('mobileNav');
+hamburger.addEventListener('click', () => {
+  const open = mobileNav.classList.toggle('open');
+  hamburger.setAttribute('aria-expanded', open);
+});
+function closeMobileNav() {
+  mobileNav.classList.remove('open');
+  hamburger.setAttribute('aria-expanded', 'false');
+}
+
+/* ── Particle Network ─────────────────────────────────────────── */
+(function initParticles() {
+  const canvas = document.getElementById('particle-canvas');
+  const ctx    = canvas.getContext('2d');
+  let   W, H, particles;
+  const COUNT   = isMobile ? 0 : 55;   // 0 = static dots handled below
+  const CONN_D  = 130;
+  const GOLD    = 'rgba(201,168,76,';
+
+  function resize() {
+    W = canvas.width  = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', () => { resize(); });
+
+  if (isMobile) {
+    // static dot grid on mobile
+    canvas.style.backgroundImage =
+      'radial-gradient(circle, rgba(201,168,76,.18) 1px, transparent 1px)';
+    canvas.style.backgroundSize = '48px 48px';
+    return;
+  }
+
+  function randomParticle() {
+    return {
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: (Math.random() - .5) * .35,
+      vy: (Math.random() - .5) * .35,
+      r: Math.random() * 1.5 + .8,
+    };
+  }
+  particles = Array.from({ length: COUNT }, randomParticle);
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    // dots
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = W;
+      if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H;
+      if (p.y > H) p.y = 0;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = GOLD + '.55)';
+      ctx.fill();
+    });
+    // connections
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const d  = Math.sqrt(dx * dx + dy * dy);
+        if (d < CONN_D) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = GOLD + (1 - d / CONN_D) * .22 + ')';
+          ctx.lineWidth = .8;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── GSAP Animations (load after scripts) ─────────────────────── */
+window.addEventListener('load', () => {
+  if (typeof gsap === 'undefined') {
+    // fallback: just show everything if GSAP didn't load
+    document.querySelectorAll('.gsap-hidden,.gsap-hidden-left,.gsap-hidden-right,.star-logo,.hero-pill,.hero-sub,.btn-primary,.btn-secondary,.badge-pill')
+      .forEach(el => { el.style.opacity = 1; el.style.transform = 'none'; });
+    const ch = document.getElementById('capsHeading');
+    if (ch) { ch.style.opacity = 1; }
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ─ Hero sequence ─ */
+  if (!prefersReduced) {
+    const heroTL = gsap.timeline({ delay: .1 });
+
+    // Logo scale+fade in
+    heroTL.to('#starLogo', {
+      opacity: 1, scale: 1, duration: .9, ease: 'power3.out',
+      onComplete: () => document.getElementById('starLogo').classList.add('animated'),
+    });
+
+    // pill
+    heroTL.to('#heroPill', { opacity: 1, y: 0, duration: .5, ease: 'power2.out' }, '-=.3');
+
+    // headline — word by word stagger
+    const headline = document.getElementById('heroHeadline');
+    const words = headline.textContent.trim().split(/\s+/);
+    headline.innerHTML = words.map(w =>
+      `<span class="word"><span class="word-inner">${w}</span></span>`
+    ).join(' ');
+    heroTL.to('.word-inner', {
+      y: 0, opacity: 1, duration: .55, stagger: .07, ease: 'power2.out'
+    }, '-=.1');
+
+    // sub text
+    heroTL.to('#heroSub', { opacity: 1, y: 0, duration: .5, ease: 'power2.out' }, '-=.2');
+
+    // CTA buttons
+    heroTL.to('#heroCta1', { opacity: 1, y: 0, duration: .4, ease: 'power2.out' }, '-=.15');
+    heroTL.to('#heroCta2', { opacity: 1, y: 0, duration: .4, ease: 'power2.out' }, '-=.25');
+
+    // badges slide in from left one by one
+    heroTL.to('.badge-pill', {
+      opacity: 1, x: 0, duration: .4, stagger: .1, ease: 'power2.out'
+    }, '-=.1');
+  } else {
+    // reduced motion: just show
+    ['#starLogo','#heroPill','#heroSub','#heroCta1','#heroCta2'].forEach(s => {
+      gsap.set(s, { opacity: 1, y: 0, scale: 1 });
+    });
+    gsap.set('.word-inner', { y: 0, opacity: 1 });
+    gsap.set('.badge-pill', { opacity: 1, x: 0 });
+    gsap.set('#capsHeading', { opacity: 1 });
+    document.getElementById('starLogo').classList.add('animated');
+  }
+
+  /* ─ Capabilities ─ */
+  // Strip gsap-hidden from caps elements immediately so they are visible by default
+  // then GSAP animates FROM the hidden state (gsap.from), not TO it
+  document.querySelectorAll('#capabilities .section-heading, #capabilities .caps-col-label, #capabilities .cap-card').forEach(el => {
+    el.classList.remove('gsap-hidden');
+  });
+
+  // draw rule line, then reveal heading
+  ScrollTrigger.create({
+    trigger: '#capabilities',
+    start: 'top 75%',
+    once: true,
+    onEnter: () => {
+      gsap.fromTo('#capsRule',
+        { width: 0 },
+        { width: '100%', duration: .8, ease: 'power2.out',
+          onComplete: () => gsap.fromTo('#capsHeading',
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: .55, ease: 'power2.out' }
+          )
+        }
+      );
+    }
+  });
+
+  // col labels
+  gsap.utils.toArray('#capabilities .caps-col-label').forEach(el => {
+    gsap.fromTo(el,
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: .5, ease: 'power2.out',
+        scrollTrigger: { trigger: el, start: 'top 88%', once: true }
+      }
+    );
+  });
+
+  // cards stagger in from bottom
+  gsap.utils.toArray('#capabilities .cap-card').forEach((card, i) => {
+    gsap.fromTo(card,
+      { opacity: 0, y: 40 },
+      { opacity: 1, y: 0, duration: .55, ease: 'power2.out',
+        delay: (i % 3) * .1,
+        scrollTrigger: { trigger: card, start: 'top 90%', once: true }
+      }
+    );
+  });
+
+  // generic gsap-hidden scroll reveal (everything else)
+  gsap.utils.toArray('.gsap-hidden').forEach(el => {
+    gsap.to(el, {
+      opacity: 1, y: 0, duration: .65, ease: 'power2.out',
+      scrollTrigger: { trigger: el, start: 'top 88%', once: true }
+    });
+  });
+
+  /* ─ Products: slide from sides ─ */
+  gsap.to('#dartCard', {
+    opacity: 1, x: 0, duration: .75, ease: 'power2.out',
+    scrollTrigger: { trigger: '#products', start: 'top 75%' }
+  });
+  gsap.to('#seaScoutCard', {
+    opacity: 1, x: 0, duration: .75, ease: 'power2.out', delay: .15,
+    scrollTrigger: { trigger: '#products', start: 'top 75%' }
+  });
+
+  /* ─ Stats counter ─ */
+  document.querySelectorAll('.stat-number[data-target]').forEach(el => {
+    const target = parseInt(el.dataset.target);
+    const suffix = el.dataset.suffix || '';
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top 85%',
+      once: true,
+      onEnter: () => {
+        gsap.to({ val: 0 }, {
+          val: target, duration: 1.8, ease: 'power1.out',
+          onUpdate: function() { el.textContent = Math.round(this.targets()[0].val) + suffix; }
+        });
+      }
+    });
+  });
+
+  /* ─ R&D sweep + badge bounce ─ */
+  ScrollTrigger.create({
+    trigger: '#rndImage',
+    start: 'top 80%',
+    once: true,
+    onEnter: () => {
+      gsap.fromTo('#rndSweep',
+        { left: '-20%' },
+        { left: '110%', duration: 2.2, ease: 'power1.inOut' }
+      );
+    }
+  });
+
+  gsap.utils.toArray('.rnd-badge').forEach((badge, i) => {
+    gsap.to(badge, {
+      opacity: 1, y: 0, scale: 1,
+      duration: .45, ease: 'back.out(1.6)',
+      delay: i * .1,
+      scrollTrigger: { trigger: badge, start: 'top 88%' }
+    });
+    badge.style.transform = 'scale(0.85)';
+  });
+
+  /* ─ Footer rule ─ */
+  ScrollTrigger.create({
+    trigger: 'footer',
+    start: 'top 95%',
+    once: true,
+    onEnter: () => gsap.to('#footerRule', { width: '100%', duration: 1.2, ease: 'power2.out' })
+  });
+
+  // Refresh on full load
+  ScrollTrigger.refresh();
+});
+
+/* ── Product title char-reveal on hover ───────────────────────── */
+document.querySelectorAll('.product-title').forEach(el => {
+  const original = el.textContent;
+  let   hovered  = false;
+
+  el.closest('.product-card').addEventListener('mouseenter', () => {
+    if (hovered || prefersReduced) return;
+    hovered = true;
+    const chars = original.split('');
+    el.innerHTML = chars.map(c =>
+      c === ' ' ? ' ' : `<span class="char" style="opacity:0">${c}</span>`
+    ).join('');
+    gsap.to(el.querySelectorAll('.char'), {
+      opacity: 1, duration: .03, stagger: .04, ease: 'none',
+      onComplete: () => { hovered = false; }
+    });
+  });
+});
+
+/* ── Form submit ──────────────────────────────────────────────── */
+function handleSubmit(e) {
+  e.preventDefault();
+  const form    = document.getElementById('contactForm');
+  const success = document.getElementById('formSuccess');
+  if (!form.fullname.value.trim() || !form.org.value.trim() || !form.email.value.trim()) return;
+  form.querySelectorAll('input, button[type="submit"]').forEach(el => el.disabled = true);
+  success.classList.add('show');
+}
+</script>
+</body>
+</html>
